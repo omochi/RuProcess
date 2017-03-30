@@ -1,0 +1,12 @@
+{
+  "autoPin": true,
+  "pins": [
+    {
+      "package": "RuPosixError",
+      "reason": null,
+      "repositoryURL": "https://github.com/omochi/RuPosixError.git",
+      "version": "0.2.0"
+    }
+  ],
+  "version": 1
+}
