@@ -9,6 +9,8 @@ let package = Package(
                  majorVersion: 0),
         .Package(url: "https://github.com/omochi/RuHeapBuffer.git",
                  majorVersion: 0),
+        .Package(url: "https://github.com/omochi/RuString.git",
+                 majorVersion: 0),
         .Package(url: "https://github.com/omochi/RuFd.git",
                  majorVersion: 0)
     ]

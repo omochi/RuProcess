@@ -18,6 +18,12 @@
       "reason": null,
       "repositoryURL": "https://github.com/omochi/RuPosixError.git",
       "version": "0.4.0"
+    },
+    {
+      "package": "RuString",
+      "reason": null,
+      "repositoryURL": "https://github.com/omochi/RuString.git",
+      "version": "0.4.3"
     }
   ],
   "version": 1
