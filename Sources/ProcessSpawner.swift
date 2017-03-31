@@ -31,7 +31,7 @@ public class ProcessSpawner {
         let commandCStr = command.map { HeapCString(string: $0) }
 
         var args: [UnsafeMutablePointer<CChar>?] = []
-        args.append(contentsOf: commandCStr.map { $0.baseAddress })
+        args.append(contentsOf: commandCStr.map { $0.pointer })
         args.append(nil)
 
         var actions: posix_spawn_file_actions_t?

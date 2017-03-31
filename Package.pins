@@ -5,13 +5,13 @@
       "package": "RuFd",
       "reason": null,
       "repositoryURL": "https://github.com/omochi/RuFd.git",
-      "version": "0.2.0"
+      "version": "0.2.1"
     },
     {
       "package": "RuHeapBuffer",
       "reason": null,
       "repositoryURL": "https://github.com/omochi/RuHeapBuffer.git",
-      "version": "0.1.0"
+      "version": "0.1.1"
     },
     {
       "package": "RuPosixError",

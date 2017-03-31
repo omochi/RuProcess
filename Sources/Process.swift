@@ -128,7 +128,7 @@ public class Process {
     public static func capture(command: [String]) throws -> String {
         let spawner = ProcessSpawner(command: command)
         let pipe = try Pipe.create()
-        spawner.fileActions.append(.connect(.stdout, to: pipe.writer))
+        spawner.fileActions.append(.connect(pipe.writer, to: .stdout))
         let proc = try spawner.spawn()
         var data: [UInt8] = try pipe.reader.read()
         data.append(0)

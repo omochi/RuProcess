@@ -1,7 +1,13 @@
 import RuProcess
 import RuString
 
+import Foundation
+
 let lsret = try Process.capture(command: ["ls", "-1"])
-for (i, x) in lsret.split(separator: "\n").enumerated() {
+
+let lslines = lsret.ru.strip().ru.lines().map { $0.ru.strip() }
+
+for (i, x) in lslines.enumerated() {
     print("[\(i)] = \(x)")
 }
+
