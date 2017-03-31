@@ -101,7 +101,8 @@ public class Process {
 
     public func wait() throws -> Status {
         var status: Int32 = 0
-        let ret = Darwin.waitpid(id, &status, 0)
+        let options: Int32 = WNOHANG
+        let ret = Darwin.waitpid(id, &status, options)
         if ret == -1 {
             throw PosixError(code: errno)
         }
