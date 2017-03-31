@@ -3,7 +3,7 @@ import RuString
 
 import Foundation
 
-let lsret = try Process.capture(command: ["ls", "-1"])
+let lsret = String.ru.decode(data: try Process.capture(command: ["ls", "-1"]))
 
 let lslines = lsret.ru.strip().ru.lines().map { $0.ru.strip() }
 

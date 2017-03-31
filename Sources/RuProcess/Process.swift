@@ -115,29 +115,14 @@ public class Process {
         return try proc.wait()
     }
 
-    public enum CaptureError : Error, CustomStringConvertible {
-        case stringDecodeFailed
-
-        public var description: String {
-            switch self {
-            case .stringDecodeFailed:
-                return "Process.CaptureError(stringDecodeFailed)"
-            }
-        }
-    }
-
-    public static func capture(command: [String]) throws -> String {
+    public static func capture(command: [String]) throws -> [UInt8] {
         let spawner = ProcessSpawner(command: command)
         let pipe = try Pipe.create()
         spawner.fileActions.append(.connect(pipe.writer, to: .stdout))
         let proc = try spawner.spawn()
-        var data: [UInt8] = try pipe.reader.read()
-        data.append(0)
+        let data: [UInt8] = try pipe.reader.read()
         try proc.wait().shouldSuccess()
-        guard let decoded = String.decodeCString(data, as: UTF8.self) else {
-            throw CaptureError.stringDecodeFailed
-        }
-        return decoded.result
+        return data
     }
 }
 
