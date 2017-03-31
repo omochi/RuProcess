@@ -6,6 +6,10 @@ let package = Package(
     name: "RuProcess",
     dependencies: [
         .Package(url: "https://github.com/omochi/RuPosixError.git",
-                 versions: "0.1.0" ..< "1.0.0")
+                 majorVersion: 0),
+        .Package(url: "https://github.com/omochi/RuHeapBuffer.git",
+                 majorVersion: 0),
+        .Package(url: "https://github.com/omochi/RuFd.git",
+                 majorVersion: 0)
     ]
 )
