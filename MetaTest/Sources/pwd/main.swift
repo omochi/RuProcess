@@ -1,3 +1,3 @@
 import RuProcess
 
-try Process.exec(command: ["pwd"])
+try Process.exec(command: ["pwd"]).shouldSuccess()

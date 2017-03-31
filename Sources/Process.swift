@@ -108,70 +108,36 @@ public class Process {
         return Status(value: status)
     }
 
-    public static func spawn(command: [String],
-                             config: SpawnConfig = SpawnConfig())
-        throws -> Process
-    {
-        var pid: pid_t = 0
-
-        let commandCStr = command.map { HeapCString(string: $0) }
-        
-        var args: [UnsafeMutablePointer<CChar>?] = []
-        args.append(contentsOf: commandCStr.map { $0.baseAddress })
-        args.append(nil)
-        
-        var fileActions: posix_spawn_file_actions_t?
-        var ret = posix_spawn_file_actions_init(&fileActions)
-        guard ret == 0 else {
-            throw PosixError(code: ret)
-        }
-        defer {
-            let ret = posix_spawn_file_actions_destroy(&fileActions)
-            precondition(ret == 0, PosixError(code: ret).description)
-        }
-
-        for (fd, action) in config.fileActions {
-            switch action {
-            case .close:
-                let ret = posix_spawn_file_actions_addclose(&fileActions, fd.fd)
-                guard ret == 0 else {
-                    throw PosixError(code: ret)
-                }
-            case let .open(path, flag, mode):
-                let ret = posix_spawn_file_actions_addopen(
-                    &fileActions, fd.fd,
-                    path, flag.rawValue, mode.rawValue)
-                guard ret == 0 else {
-                    throw PosixError(code: ret)
-                }
-            case let .connect(to):
-                let ret = posix_spawn_file_actions_adddup2(&fileActions, fd.fd, to.fd)
-                guard ret == 0 else {
-                    throw PosixError(code: ret)
-                }
-            }
-        }
-
-        ret = posix_spawnp(&pid,
-                           args[0],
-                           &fileActions,
-                           nil,
-                           &args,
-                           nil)
-        guard ret == 0 else {
-            throw PosixError(code: ret)
-        }
-        
-        return Process(id: pid)
-    }
-
     public static func exec(command: [String]) throws -> Status {
-        let proc = try spawn(command: command, config: SpawnConfig())
+        let spawner = ProcessSpawner(command: command)
+        let proc = try spawner.spawn()
         return try proc.wait()
     }
 
-    public static func easyExec(command: [String]) throws {
-        let status = try exec(command: command)
-        status.exitStatus == .some(0)
+    public enum CaptureError : Error, CustomStringConvertible {
+        case stringDecodeFailed
+
+        public var description: String {
+            switch self {
+            case .stringDecodeFailed:
+                return "Process.CaptureError(stringDecodeFailed)"
+            }
+        }
+    }
+
+    public static func capture(command: [String]) throws -> String {
+        let spawner = ProcessSpawner(command: command)
+        let pipe = try Pipe.create()
+        spawner.fileActions.append(.connect(.stdout, to: pipe.writer))
+        let proc = try spawner.spawn()
+        var data: [UInt8] = try pipe.reader.read()
+        data.append(0)
+        try proc.wait().shouldSuccess()
+        guard let decoded = String.decodeCString(data, as: UTF8.self) else {
+            throw CaptureError.stringDecodeFailed
+        }
+        return decoded.result
     }
 }
+
+
