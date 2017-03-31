@@ -73,7 +73,10 @@ public class Process {
         return Status(value: status)
     }
 
-    public static func spawn(command: [String], config: SpawnConfig) throws -> Process {
+    public static func spawn(command: [String],
+                             config: SpawnConfig = SpawnConfig())
+        throws -> Process
+    {
         var pid: pid_t = 0
 
         let commandCStr = command.map { HeapCString(string: $0) }
@@ -127,7 +130,8 @@ public class Process {
         return Process(id: pid)
     }
 
-    public static func exec(command: [String]) -> Int {
-        return command.count
+    public static func exec(command: [String]) throws -> Status {
+        let proc = try spawn(command: command, config: SpawnConfig())
+        return try proc.wait()
     }
 }
