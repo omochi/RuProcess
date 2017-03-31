@@ -12,7 +12,19 @@ import RuHeapBuffer
 import RuFd
 
 public class Process {
-    public struct Status {
+    public struct StatusError : Error, CustomStringConvertible {
+        public init(status: Status) {
+            self.status = status
+        }
+
+        public let status: Status
+
+        public var description: String {
+            return "Process.StatusError(\(status))"
+        }
+    }
+
+    public struct Status : CustomStringConvertible {
         public init(value: Int32) {
             self._value = value
         }
@@ -34,15 +46,38 @@ public class Process {
             return signaled ? (_value & 0o200) != 0 : false
         }
 
-        public var continued: Bool {
-            return _stopped && _stopSignal == 0x13
-        }
-
         public var stopped: Bool {
             return _stopped && _stopSignal != 0x13
         }
         public var stopSignal: Int32? {
             return stopped ? _stopSignal : nil
+        }
+
+        public var continued: Bool {
+            return _stopped && _stopSignal == 0x13
+        }
+
+        public func shouldSuccess() throws {
+            if exitStatus == .some(0) {
+                return
+            }
+            throw StatusError(status: self)
+        }
+
+        public var description: String {
+            if exited {
+                return "Status(exited: \(exitStatus!)"
+            }
+            if signaled {
+                return "Status(signaled: \(terminateSignal!), coredump=\(coredump))"
+            }
+            if stopped {
+                return "Status(stopped: \(stopSignal!))"
+            }
+            if continued {
+                return "Status(continued)"
+            }
+            return "Status(unknown: \(_value))"
         }
 
         private var _status: Int32 {
@@ -133,5 +168,10 @@ public class Process {
     public static func exec(command: [String]) throws -> Status {
         let proc = try spawn(command: command, config: SpawnConfig())
         return try proc.wait()
+    }
+
+    public static func easyExec(command: [String]) throws {
+        let status = try exec(command: command)
+        status.exitStatus == .some(0)
     }
 }

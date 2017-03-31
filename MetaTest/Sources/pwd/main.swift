@@ -1,1 +1,3 @@
-print("Hello, world!")
+import RuProcess
+
+try Process.exec(command: ["pwd"])
